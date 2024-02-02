@@ -15,11 +15,6 @@ import (
 type App struct {
 	Client *mongo.Client
 }
-type CreateUserResponse struct {
-	Message string             `json:"message"`
-	ID      primitive.ObjectID `json:"_id,omitempty"`
-	Email   string             `json:"email"`
-}
 
 func (app *App) handlerCreateUser(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
@@ -32,6 +27,7 @@ func (app *App) handlerCreateUser(w http.ResponseWriter, r *http.Request) {
 
 	collection := app.Client.Database("dailyDB").Collection("users")
 	insertResult, err := collection.InsertOne(context.TODO(), params)
+
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Couldn't create user: %v", err))
 		return
@@ -53,6 +49,8 @@ func (app *App) handlerCreateUser(w http.ResponseWriter, r *http.Request) {
 func (app *App) handlerGetUserDetails(w http.ResponseWriter, r *http.Request) {
 	userID := chi.URLParam(r, "userID")
 
+	options := r.URL.Query().Get("options")
+
 	objID, err := primitive.ObjectIDFromHex(userID)
 
 	if err != nil {
@@ -73,5 +71,17 @@ func (app *App) handlerGetUserDetails(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, user)
+	if options == "basic" {
+		respondWithJSON(w, http.StatusOK, BasicUser{
+			FullName: user.FullName,
+			Email:    user.Email,
+			Username: user.Username,
+		})
+	} else {
+		respondWithJSON(w, http.StatusOK, FullUser{
+			FullName: user.FullName,
+			Email:    user.Email,
+			Username: user.Username,
+		})
+	}
 }
