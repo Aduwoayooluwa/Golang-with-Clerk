@@ -24,7 +24,7 @@ These instructions will get you a copy of the project up and running on your loc
 1. **Clone the repository**
 
 ```bash
-git clone https://github.com/yourusername/go-user-management.git
+git clone https://github.com/aduwoayooluwa/Golang-with-Clerk.git
 ```
 
 2. **Set up MongoDB**
